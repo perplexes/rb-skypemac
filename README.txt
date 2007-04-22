@@ -1,0 +1,3 @@
+README for rb-skypemac
+======================
+
