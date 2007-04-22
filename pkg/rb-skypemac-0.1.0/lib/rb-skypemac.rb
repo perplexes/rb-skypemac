@@ -7,14 +7,15 @@ include Appscript
 module SkypeMac  
   # Singleton for interfacing with Skype
 	class Skype
+    # Initiates a Skype call
 	  def Skype.call(name_or_num)
       Call.new name_or_num
     end
     
     # The Appscript interface to Skype.  Requires a Hash containing:
-    # <li><i>:command</i> - the <a href="https://developer.skype.com/Docs/ApiDoc">Skype API command to pass</a>
-    # <li><i>:script_name</i> - unknown all though an empty String makes Skype happy
-    # Impl adds :script_name to Hash and warns if it is not provided
+    # (1) <i>:command</i> - the Skype API command to pass,
+    # (2) <i>:script_name</i> - unknown all though an empty String makes Skype happy.
+    # Impl adds <i>:script_name</i> to Hash and warns if it is not provided
     def Skype.send_(params)
       if not params.has_key? :script_name and not @suppress_warnings
         puts "Warning: Skype Applescript API require 'script_name' key (even with an empty String value).  Adding..."
@@ -28,6 +29,7 @@ module SkypeMac
     end
   end
   
+  # Represents a Skype call
   class Call
     @@TOGGLE_FLAGS = [:START, :STOP]
     
@@ -55,22 +57,18 @@ module SkypeMac
       Skype.send_ :command => "get call #{@id} status"
     end
     
-    # Returns one of:<br>
-    # <li>VIDEO_NONE
-    # <li>VIDEO_SEND_ENABLED
-    # <li>VIDEO_RECV_ENABLED
-    # <li>VIDEO_BOTH_ENABLED
+    # Returns one of: VIDEO_NONE, VIDEO_SEND_ENABLED, VIDEO_RECV_ENABLED, VIDEO_BOTH_ENABLED
     def get_video_status
       Skype.send_ :command => "get call #{id} video_status"
     end
     
-    # Accepts :START or :STOP
+    # Accepts <i>:START</i> or <em>:STOP</em>
     def send_video(toggle_flag)
       raise Error.new("Illegal flag: #{toggle_flag}") if not @@TOGGLE_FLAGS.index toggle_flag
       Skype.send_ :command => "alter call #{id} #{toggle_flag.downcase.to_s}_video_send"
     end
     
-    # Accepts :START or :STOP
+    # Accepts <em>:START</em> or <em>:STOP</em>
     def rcv_video(toggle_flag)
       raise Error.new("Illegal flag: #{toggle_flag}") if not @@TOGGLE_FLAGS.index toggle_flag
       Skype.send_ :command => "alter call #{id} #{toggle_flag.downcase.to_s}_video_receive"
