@@ -19,15 +19,24 @@ class TestGroup < Test::Unit::TestCase
   
   def test_get_type
     gs = Group.groups
-    type = Group.get_type gs[0].gtype
+    type = Group.get_type gs[0].gid
     assert type
     assert type.class == String
+    assert type.match(/^\w+$/)
   end
   
-  def test_type
+  def test_gtype
     gs = Group.groups
     assert gs[0].gtype
     assert gs[0].gtype.class == String
+    assert gs[0].gtype.match(/^\w+$/)
+  end
+  
+  def test_gid
+    gs = Group.groups
+    assert gs[0].gid
+    assert gs[0].gid.class == String
+    assert gs[0].gid.match(/^\d+$/)
   end
   
   def test_member_user_names

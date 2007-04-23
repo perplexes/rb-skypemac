@@ -6,12 +6,12 @@ module SkypeMac
 
   # Represents Skype internal grouping of contacts; https://developer.skype.com/Docs/ApiDoc/GROUP_object
   class Group
-    attr :gtype, :gid
+    attr_reader :gtype, :gid
     
     # Gets the type of a group by id
     def Group.get_type(id)
-      r = Skype.send_ :command => "get group #{id} users"
-      r.sub ".*TYPE\b", ""
+      r = Skype.send_ :command => "get group #{id} type"
+      r.sub(/.*TYPE\b/, "").strip
     end
 
     # Returns an array of your Skype instance's supported group types

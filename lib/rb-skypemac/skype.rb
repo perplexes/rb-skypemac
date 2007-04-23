@@ -6,6 +6,7 @@ module SkypeMac
 
   # Singleton for interfacing with Skype
 	class Skype
+	  @@groups = nil
 
     # Initiates a Skype call
 	  def Skype.call(name_or_num)
@@ -23,8 +24,8 @@ module SkypeMac
     
     # Returns a hash of symbols => Group objects.  The key is the group type.
     def Skype.groups
-      if @@groups.nil?
-        @@groups = Groups.get_groups
+      if not @@groups
+        @@groups = Group.groups
       end
       @@groups
     end
