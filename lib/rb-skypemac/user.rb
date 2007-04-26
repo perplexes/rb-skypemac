@@ -6,19 +6,43 @@ module SkypeMac
 
   # Represents Skype internal grouping of contacts; https://developer.skype.com/Docs/ApiDoc/GROUP_object
   class User
+    def User.skype_attr(attr_sym, accessor=false)
+      module_eval %{def #{attr_sym.to_s}
+        r = Skype.send_ :command => "get user \#{@handle} #{attr_sym.to_s}"
+        v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
+        v = true if v == "TRUE"
+        v = nil if v == "FALSE"
+        v
+      end}
+      if accessor
+        module_eval %{def #{attr_sym.to_s}=(value)
+          value = "true" if value == true
+          value = "False" if value == false
+          r = Skype.send_ :command => "set user \#{@handle} #{attr_sym.to_s} \#{value}"
+          v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
+          v = true if v == "TRUE"
+          v = nil if v == "FALSE"
+          v
+        end}
+      end
+    end
+
     def User.skype_attr_reader(*attr_sym)
       attr_sym.each do |a|
-        module_eval %{def #{a.to_s}
-          r = Skype.send_ :command => "get user \#{@handle} #{a.to_s}"
-          r.sub(/^.*#{a.to_s.upcase} /, "")
-        end}
+        User.skype_attr a, false
+      end
+    end
+    
+    def User.skype_attr_accessor(*attr_sym)
+      attr_sym.each do |a|
+        User.skype_attr a, true
       end
     end
 
     attr_reader :handle
     skype_attr_reader :fullname, :birthday, :sex, :language, :country, :province
     skype_attr_reader :city, :phone_home, :phone_office, :phone_mobile, :homepage
-    skype_attr_reader :about, :is_video_capable, :buddy_status, :is_authorized
+    skype_attr_reader :about, :is_video_capable, :buddystatus, :is_authorized
     skype_attr_reader :is_blocked, :onlinestatus, :skypeout, :lastonlinetimestamp
     skype_attr_reader :can_leave_vm, :speeddial, :receivedauthrequest, :mood_text
     skype_attr_reader :rich_mood_text, :is_cf_active, :nrof_authed_buddies
@@ -26,8 +50,6 @@ module SkypeMac
     #TODO: attr_reader :aliases, :timezone
     
     attr_accessor :buddystatus, :isblocked, :isauthorized, :speeddial, :displayname
-
-
 
     def initialize(handle)
       @handle = handle

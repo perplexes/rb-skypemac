@@ -23,12 +23,12 @@ module SkypeMac
     # Returns array of skype names of users in this group
     def member_user_names
       r = Skype.send_ :command => "get group #{@gid} users"
-      r.sub(".*USERS\b", "").split(", ")
+      r.sub(/^.*USERS /, "").split(", ")
     end
 
     # Returns array of Users in this Group
     def users
-      # TODO
+      member_user_names.map { |h| User.new h }
     end
 
     # Returns hash of symols (group types) => Group objects

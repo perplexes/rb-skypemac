@@ -7,6 +7,7 @@ lib/rb-skypemac/call.rb
 lib/rb-skypemac/group.rb
 lib/rb-skypemac/iam.rb
 lib/rb-skypemac/skype.rb
+lib/rb-skypemac/user.rb
 lib/rb-skypemac/version.rb
 scripts/txt2html
 setup.rb

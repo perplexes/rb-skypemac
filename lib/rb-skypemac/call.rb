@@ -11,9 +11,10 @@ module SkypeMac
   
     attr :id
   
-    # Creates and initializes a Skype call
-    def initialize(name_or_num)
-      status = Skype.send_ :command => "call #{name_or_num}"
+    # Creates and initializes a Skype call.  Accepts the handle of the user to call or a User object
+    def initialize(user)
+      user = user.handle if user.is_a? User
+      status = Skype.send_ :command => "call #{user}"
       if status =~ /CALL (\d+) STATUS/
         @id = $1
       else

@@ -7,4 +7,9 @@ class TestSkype < Test::Unit::TestCase
     gs = Skype.groups
   end
 
+  def test_online_friends
+    assert users = Skype.online_friends
+    assert users.empty? == false
+    assert users[0].class == User
+  end
 end

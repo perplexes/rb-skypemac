@@ -33,7 +33,7 @@
     <h1>rb skypemac</h1>
     <div id="version" class="clickable" onclick='document.location = "http://rubyforge.org/projects/rb-skypemac"; return false'>
       Get Version
-      <a href="http://rubyforge.org/projects/rb-skypemac" class="numbers">0.1.0</a>
+      <a href="http://rubyforge.org/projects/rb-skypemac" class="numbers">0.2.0</a>
     </div>
     <h1>&#x2192; &#8216;rb-skypemac&#8217;</h1>
 
@@ -62,6 +62,10 @@ call = Skype.call "echo123"
 
 # Disconnect a call
 call.hangup
+
+sleight42 = Skype.online_friends.find { |u| u.handle == "sleight42" }
+call = Skype.call sleight42
+call.hangup # no one wants to talk to him anyway ;)
 
 # Set your user status to away
 Iam.away
