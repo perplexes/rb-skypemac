@@ -18,10 +18,14 @@ require 'rb-skypemac'
 include SkypeMac
 
 # Place a call to the 'echo123' user
-call = Skype.call "echo123"
+call = Skype.call "echo123" 
 
 # Disconnect a call
 call.hangup
+
+sleight42 = Skype.online_friends.find { |u| u.handle == "sleight42" }
+call = Skype.call sleight42
+call.hangup # no one wants to talk to him anyway
 
 # Set your user status to away
 Iam.away

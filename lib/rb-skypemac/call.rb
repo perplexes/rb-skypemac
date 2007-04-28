@@ -9,14 +9,14 @@ module SkypeMac
   class Call
     @@TOGGLE_FLAGS = [:START, :STOP]
   
-    attr :id
+    attr :call_id
   
     # Creates and initializes a Skype call.  Accepts the handle of the user to call or a User object
     def initialize(user)
       user = user.handle if user.is_a? User
       status = Skype.send_ :command => "call #{user}"
       if status =~ /CALL (\d+) STATUS/
-        @id = $1
+        @call_id = $1
       else
         raise Error.new("Could not obtain Call ID")
       end
@@ -25,13 +25,13 @@ module SkypeMac
     # Attempts to hang up a call.<br>
     # <b>Note</b>: If Skype hangs while placing the call, this method could hang indefinitely
     def hangup
-      Skype.send_ :command => "set call #{@id} status finished"
+      Skype.send_ :command => "set call #{@call_id} status finished"
     end
   
     # Retrieves the status of the current call.<br>
     # <b>Untested</b>
     def status
-      Skype.send_ :command => "get call #{@id} status"
+      Skype.send_ :command => "get call #{@call_id} status"
     end
   
     # Returns one of: VIDEO_NONE, VIDEO_SEND_ENABLED, VIDEO_RECV_ENABLED, VIDEO_BOTH_ENABLED
