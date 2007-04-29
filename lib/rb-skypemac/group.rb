@@ -43,6 +43,10 @@ module SkypeMac
       groups
     end
     
+    def <=>(grp)
+      @gtype <=> grp.gtype
+    end
+    
     private 
       def initialize(id, type)
         @gid = id

@@ -49,10 +49,14 @@ module SkypeMac
     
     #TODO: attr_reader :aliases, :timezone
     
-    attr_accessor :buddystatus, :isblocked, :isauthorized, :speeddial, :displayname
+    skype_attr_accessor :buddystatus, :isblocked, :isauthorized, :speeddial, :displayname
 
     def initialize(handle)
       @handle = handle
+    end
+    
+    def <=>(user)
+      @handle <=> user.handle
     end
   end
 end
