@@ -11,14 +11,16 @@ module SkypeMac
   
     attr :call_id
   
-    # Creates and initializes a Skype call.  Accepts the handle of the user to call or a User object
-    def initialize(user)
-      user = user.handle if user.is_a? User
-      status = Skype.send_ :command => "call #{user}"
+    # Creates and initializes a Skype call.  Accepts a var_arg of handles and/or Users.  Multiple handles/Users
+    # should create a conference call.
+    def initialize(*user)
+      user_str = ""
+      user.each { |u| user_str << ((u.is_a? User) ? u.handle : u) }
+      status = Skype.send_ :command => "call #{user_str}"
       if status =~ /CALL (\d+) STATUS/
         @call_id = $1
       else
-        raise Error.new("Could not obtain Call ID")
+        raise RuntimeError.new("Could not obtain Call ID")
       end
     end
   

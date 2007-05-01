@@ -9,8 +9,8 @@ module SkypeMac
 	  @@groups = nil
 
     # Initiates a Skype call
-	  def Skype.call(name_or_num)
-      Call.new name_or_num
+	  def Skype.call(*person)
+      Call.new *person
     end
     
     # The Appscript interface to Skype.  Requires a Hash containing:
