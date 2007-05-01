@@ -70,15 +70,23 @@ module SkypeMac
       Skype.find_users_of_type "USERS_BLOCKED_BY_ME"
     end
     
+    # Returns the id of the call if there is an incoming Skype call otherwise nil
     def Skype.incoming_call?
-      r = Skype.send_ :command => "SEARCH ACTIVECALLS", :script => ""
-      active_call_ids = r.gsub("CALLS ").split(", ")
+      Call.delete_inactive_calls
+      r = Skype.send_ :command => "SEARCH ACTIVECALLS"
+      active_call_ids = r.gsub(/CALLS /, "").split(", ")
       active_call_ids.each do |call_id|
         if not Call.self_initd_calls.find { |c| call.call_id == call_id }
-          return call_id
+          return call_id if call_id != "COMMAND_PENDING"
         end
       end
-      return false
+      return nil
+    end
+    
+    # Returns the Call object for the connected call
+    def Skype.answer_call
+      incoming_call_id = Skype.incoming_call?
+      Call.from_id incoming_call_id if incoming_call_id
     end
   end
 end

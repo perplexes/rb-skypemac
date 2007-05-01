@@ -12,20 +12,52 @@ module SkypeMac
     
     attr :call_id
   
+    # Good to call as it simply removes Call objects from the cached array of Calls that are no longer in use.
+    # Invoked by Skype.incoming_call?
+    def Call.delete_inactive_calls
+      r = Skype.send_ :command => "SEARCH ACTIVECALLS"
+      active_call_ids = r.gsub(/CALLS /, "").split(", ")
+      active_calls = []
+      # Create an array of active Calls
+      active_call_ids.inject(active_calls) do |m, call_id|
+        m << @@calls.find { |call| call.call_id == call_id }
+      end
+
+      # dead Calls are all Calls that are not active
+      dead_calls = @@calls - active_calls
+
+      # Now lose them
+      dead_calls.each { |dead_call| @@calls.delete dead_call }
+    end
+  
     def Call.self_initd_calls
       @@calls
     end
   
+    def Call.from_id(id)
+      @@calls << call = Call.new(Integer(id))
+      call
+    end
+  
     # Creates and initializes a Skype call.  Accepts a var_arg of handles and/or Users.  Multiple handles/Users
-    # should create a conference call.
-    def initialize(*user)
-      user_str = ""
-      user.each { |u| user_str << ((u.is_a? User) ? u.handle : u) }
-      status = Skype.send_ :command => "call #{user_str}"
-      if status =~ /CALL (\d+) STATUS/
-        @call_id = $1
-      else
-        raise RuntimeError.new("Could not obtain Call ID")
+    # should create a conference call.  If args[0] is an Integer, expects to create a Call object from a valid
+    # call id (Don't try this at home, folks...)
+    def initialize(*args)
+      if args[0].is_a? String or args[0].is_a? User
+        # Outbound call
+        user_str = ""
+        user.each { |u| user_str << ((u.is_a? User) ? u.handle : u) }
+        status = Skype.send_ :command => "call #{user_str}"
+        if status =~ /CALL (\d+) STATUS/: @call_id = $1
+        else raise RuntimeError.new("Could not obtain call ID")
+        end
+      elsif args[0].is_a? Integer
+        id_str = args[0].to_s
+        # Inbound call - minor kluge with the type check but didn't want to break the existing 0.2.0 API
+        status = Skype.send_ :command => "alter call #{id_str} answer"
+        if status =~ /ALTER CALL #{id_str} ANSWER/: @call_id = id_str
+        else raise RuntimeError.new("Could not answer call: status '#{status}'")
+        end
       end
       @@calls << self
     end
