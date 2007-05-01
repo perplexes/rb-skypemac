@@ -10,7 +10,7 @@ module SkypeMac
 
     # Initiates a Skype call
 	  def Skype.call(*person)
-      Call.new *person
+      Call.new person
     end
     
     # The Appscript interface to Skype.  Requires a Hash containing:
@@ -68,6 +68,17 @@ module SkypeMac
     # Array of Users blocked
     def Skype.blocked_users
       Skype.find_users_of_type "USERS_BLOCKED_BY_ME"
+    end
+    
+    def Skype.incoming_call?
+      r = Skype.send_ :command => "SEARCH ACTIVECALLS", :script => ""
+      active_call_ids = r.gsub("CALLS ").split(", ")
+      active_call_ids.each do |call_id|
+        if not Call.self_initd_calls.find { |c| call.call_id == call_id }
+          return call_id
+        end
+      end
+      return false
     end
   end
 end

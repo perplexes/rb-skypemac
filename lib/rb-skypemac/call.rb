@@ -8,8 +8,13 @@ module SkypeMac
   # Represents a Skype call
   class Call
     @@TOGGLE_FLAGS = [:START, :STOP]
-  
+    @@calls = []
+    
     attr :call_id
+  
+    def Call.self_initd_calls
+      @@calls
+    end
   
     # Creates and initializes a Skype call.  Accepts a var_arg of handles and/or Users.  Multiple handles/Users
     # should create a conference call.
@@ -22,12 +27,14 @@ module SkypeMac
       else
         raise RuntimeError.new("Could not obtain Call ID")
       end
+      @@calls << self
     end
   
     # Attempts to hang up a call.<br>
     # <b>Note</b>: If Skype hangs while placing the call, this method could hang indefinitely
     def hangup
       Skype.send_ :command => "set call #{@call_id} status finished"
+      @@calls.delete self
     end
   
     # Retrieves the status of the current call.<br>

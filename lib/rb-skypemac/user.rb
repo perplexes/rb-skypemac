@@ -11,7 +11,7 @@ module SkypeMac
         r = Skype.send_ :command => "get user \#{@handle} #{attr_sym.to_s}"
         v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
         v = true if v == "TRUE"
-        v = nil if v == "FALSE"
+        v = false if v == "FALSE"
         v
       end}
       if accessor
@@ -21,7 +21,7 @@ module SkypeMac
           r = Skype.send_ :command => "set user \#{@handle} #{attr_sym.to_s} \#{value}"
           v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
           v = true if v == "TRUE"
-          v = nil if v == "FALSE"
+          v = false if v == "FALSE"
           v
         end}
       end
@@ -42,9 +42,9 @@ module SkypeMac
     attr_reader :handle
     skype_attr_reader :fullname, :birthday, :sex, :language, :country, :province
     skype_attr_reader :city, :phone_home, :phone_office, :phone_mobile, :homepage
-    skype_attr_reader :about, :is_video_capable, :buddystatus, :is_authorized
-    skype_attr_reader :is_blocked, :onlinestatus, :skypeout, :lastonlinetimestamp
-    skype_attr_reader :can_leave_vm, :speeddial, :receivedauthrequest, :mood_text
+    skype_attr_reader :about, :is_video_capable, :is_authorized
+    skype_attr_reader :onlinestatus, :skypeout, :lastonlinetimestamp
+    skype_attr_reader :can_leave_vm, :receivedauthrequest, :mood_text
     skype_attr_reader :rich_mood_text, :is_cf_active, :nrof_authed_buddies
     
     #TODO: attr_reader :aliases, :timezone
