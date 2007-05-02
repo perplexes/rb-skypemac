@@ -4,66 +4,36 @@ include Appscript
 
 
 module SkypeMac
-
-  # Represents a Skype call
+  # Represents a Skype call.  Developer is responsible for calling Call#hangup at the end of each call, whether it was placed
+  # by the caller or is an answered call.
   class Call
     @@TOGGLE_FLAGS = [:START, :STOP]
     @@calls = []
     
     attr :call_id
   
-    # Good to call as it simply removes Call objects from the cached array of Calls that are no longer in use.
-    # Invoked by Skype.incoming_call?
-    def Call.delete_inactive_calls
+    def Call.active_call_ids
       r = Skype.send_ :command => "SEARCH ACTIVECALLS"
-      active_call_ids = r.gsub(/CALLS /, "").split(", ")
-      active_calls = []
-      # Create an array of active Calls
-      active_call_ids.inject(active_calls) do |m, call_id|
-        m << @@calls.find { |call| call.call_id == call_id }
-      end
+      r.gsub(/CALLS /, "").split(", ")      
+    end
 
-      # dead Calls are all Calls that are not active
-      dead_calls = @@calls - active_calls
+    def Call.active_calls
+      Call.active_call_ids.collect { |id| Call.new id unless id == "COMMAND_PENDING"}
+    end
 
-      # Now lose them
-      dead_calls.each { |dead_call| @@calls.delete dead_call }
+    def Call.incoming_calls
+      Call.active_calls - @@calls
     end
-  
-    def Call.self_initd_calls
-      @@calls
-    end
-  
-    def Call.from_id(id)
-      @@calls << call = Call.new(Integer(id))
-      call
-    end
-  
-    # Creates and initializes a Skype call.  Accepts a var_arg of handles and/or Users.  Multiple handles/Users
-    # should create a conference call.  If args[0] is an Integer, expects to create a Call object from a valid
-    # call id (Don't try this at home, folks...)
-    def initialize(*args)
-      if args[0].is_a? String or args[0].is_a? User
-        # Outbound call
-        user_str = ""
-        user.each { |u| user_str << ((u.is_a? User) ? u.handle : u) }
-        status = Skype.send_ :command => "call #{user_str}"
-        if status =~ /CALL (\d+) STATUS/: @call_id = $1
-        else raise RuntimeError.new("Could not obtain call ID")
-        end
-      elsif args[0].is_a? Integer
-        id_str = args[0].to_s
-        # Inbound call - minor kluge with the type check but didn't want to break the existing 0.2.0 API
-        status = Skype.send_ :command => "alter call #{id_str} answer"
-        if status =~ /ALTER CALL #{id_str} ANSWER/: @call_id = id_str
-        else raise RuntimeError.new("Could not answer call: status '#{status}'")
-        end
-      end
+    
+    # Creates a Call object from a call_id.
+    def initialize(call_id)
+      raise ArgumentError "Cannot pass nil call_id" if call_id.nil?
+      @call_id = call_id
       @@calls << self
     end
   
-    # Attempts to hang up a call.<br>
-    # <b>Note</b>: If Skype hangs while placing the call, this method could hang indefinitely
+    # Attempts to hang up a call. <b>Note</b>: If Skype hangs while placing the call, this method could hang indefinitely.
+    # <u>This method must be called at the end of a call, whether the Skype user answered or placed the call!</u>
     def hangup
       Skype.send_ :command => "set call #{@call_id} status finished"
       @@calls.delete self

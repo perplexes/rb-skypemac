@@ -8,11 +8,6 @@ module SkypeMac
 	class Skype
 	  @@groups = nil
 
-    # Initiates a Skype call
-	  def Skype.call(*person)
-      Call.new person
-    end
-    
     # The Appscript interface to Skype.  Requires a Hash containing:
     # (1) <i>:command</i> - the Skype API command to pass,
     # (2) <i>:script_name</i> - unknown all though an empty String makes Skype happy.
@@ -21,12 +16,29 @@ module SkypeMac
       params[:script_name] = "" if not params.has_key? :script_name 
       app('Skype').send_ params
     end
+
+    # Initiates a Skype call
+	  def Skype.call(*person)
+      user_handles = person.collect { |u| user_str << ((u.is_a? User) ? u.handle : u) }
+      status = Skype.send_ :command => "call #{user_handles.join(', ')}"
+      if status =~ /CALL (\d+) STATUS/: Call.new($1)
+      else raise RuntimeError.new("Call failed.  Skype returned '#{status}'")
+      end        
+    end
+
+    # Returns an Array of call IDs if there is an incoming Skype call otherwise nil
+    def Skype.incoming_calls
+      Call.incoming_calls
+    end
     
-    # Returns an Array of Groups
+    # Answers a call given a skype call ID.  Returns an Array of Call objects.
+    def Skype.answer_calls(*id)
+      ids.collect { |id| Call.new id }
+    end
+    
+    # Returns an Array of Group
     def Skype.groups
-      if not @@groups
-        @@groups = Group.groups
-      end
+      @@groups = Group.groups if not @@groups
       @@groups
     end
     
@@ -68,25 +80,6 @@ module SkypeMac
     # Array of Users blocked
     def Skype.blocked_users
       Skype.find_users_of_type "USERS_BLOCKED_BY_ME"
-    end
-    
-    # Returns the id of the call if there is an incoming Skype call otherwise nil
-    def Skype.incoming_call?
-      Call.delete_inactive_calls
-      r = Skype.send_ :command => "SEARCH ACTIVECALLS"
-      active_call_ids = r.gsub(/CALLS /, "").split(", ")
-      active_call_ids.each do |call_id|
-        if not Call.self_initd_calls.find { |c| call.call_id == call_id }
-          return call_id if call_id != "COMMAND_PENDING"
-        end
-      end
-      return nil
-    end
-    
-    # Returns the Call object for the connected call
-    def Skype.answer_call
-      incoming_call_id = Skype.incoming_call?
-      Call.from_id incoming_call_id if incoming_call_id
     end
   end
 end
