@@ -33,7 +33,7 @@
     <h1>rb skypemac</h1>
     <div id="version" class="clickable" onclick='document.location = "http://rubyforge.org/projects/rb-skypemac"; return false'>
       Get Version
-      <a href="http://rubyforge.org/projects/rb-skypemac" class="numbers">0.2.1</a>
+      <a href="http://rubyforge.org/projects/rb-skypemac" class="numbers">0.3.0</a>
     </div>
     <h1>&#x2192; &#8216;rb-skypemac&#8217;</h1>
 
@@ -65,13 +65,29 @@ call.hangup
 
 sleight42 = Skype.online_friends.find { |u| u.handle == "sleight42" }
 call = Skype.call sleight42
-call.hangup # no one wants to talk to him anyway
+Skype.hangup call # no one wants to talk to him anyway
 
 # Set your user status to away
 Iam.away
 
 # Set your user status to back
 Iam.online
+
+# Attempt to detect and answer a call -- still experimental!  
+# Sporadically crashes Skype 2.6.0.17
+loop do
+  begin
+    if not (calls = Skype.incoming_calls).empty?
+      call = Skype.answer calls.first
+      sleep 10
+      Skype.hangup call
+    end
+  rescue RuntimeError =&gt; e
+    puts e.message
+  end
+  puts "sleeping..." 
+  sleep 1
+end
 </pre>
 
 	<h2>Licence</h2>
@@ -84,8 +100,11 @@ Iam.online
 
 
 	<p>Comments are welcome. Send an email to <a href="mailto:sleight42@gmail.com">Evan Light</a>.</p>
+
+
+	<p>Copyright 2007, Evan Light</p>
     <p class="coda">
-      <a href="mailto:sleight42@gmail.com.com">Evan Light</a>, 26th April 2007<br>
+      <a href="mailto:sleight42@gmail.com.com">Evan Light</a>, 2nd May 2007<br>
     </p>
 </div>
 

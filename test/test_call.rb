@@ -16,9 +16,4 @@ class TestCall< Test::Unit::TestCase
     assert calls = Call.active_calls
     assert calls.empty?
   end
-  
-  def test_incoming_calls
-    assert inc = Call.incoming_calls
-    assert inc.empty?
-  end
 end

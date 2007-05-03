@@ -12,4 +12,9 @@ class TestSkype < Test::Unit::TestCase
     assert users.empty? == false
     assert users[0].class == User
   end
+  
+  def test_incoming_calls
+    assert inc = Skype.incoming_calls
+    assert inc.empty?
+  end  
 end
