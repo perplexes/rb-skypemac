@@ -5,8 +5,8 @@ include Appscript
 module SkypeMac  
 
   # Singleton for interfacing with Skype
-	class Skype
-	  @@groups = nil
+  class Skype     
+    @@groups = nil
     @@calls = []
 
     # The Appscript interface to Skype.  Requires a Hash containing:
@@ -50,7 +50,7 @@ module SkypeMac
     
     # Returns an Array of Group
     def Skype.groups
-      @@groups = Group.groups if not @@groups
+      @@groups = Group.groups if @@groups.nil? or @@groups.empty?
       @@groups
     end
     
@@ -59,7 +59,7 @@ module SkypeMac
       begin
         Skype.groups.find { |g| g.gtype == group_type}.users
       rescue Exception => e
-        e.put_message
+        puts e.message
       end
     end
 
@@ -96,6 +96,11 @@ module SkypeMac
     # Array of Users blocked
     def Skype.blocked_users
       Skype.find_users_of_type "USERS_BLOCKED_BY_ME"
+    end
+    
+    # Minimize the Skype window
+    def Skype.minimize
+      Skype.send_ :command => "MINIMIZE"
     end
   end
 end
