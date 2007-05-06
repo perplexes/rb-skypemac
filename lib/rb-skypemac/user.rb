@@ -34,7 +34,7 @@ module SkypeMac
         end
       end
     
-      def skype_attr_accessor(*attr_sym)
+      def User.skype_attr_accessor(*attr_sym)
         attr_sym.each do |a|
           User.skype_attr a, true
         end
