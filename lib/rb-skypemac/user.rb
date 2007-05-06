@@ -57,8 +57,15 @@ module SkypeMac
       @handle = handle
     end
     
+    def name
+      if displayname != "": displayname
+      elsif fullname != "": fullname
+      else handle
+      end
+    end
+    
     def <=>(user)
-      @handle <=> user.handle
+      name.upcase <=> user.name.upcase
     end
   end
 end
