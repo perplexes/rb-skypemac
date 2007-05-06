@@ -42,10 +42,11 @@ module SkypeMac
       @@calls << call
     end
     
+    
     # Use this method to disconnect from a Call whether it was answered or iniiated locally.
+    # Raises SkypeError if an error is reported from the Skype API
     def Skype.hangup(call)
-      call.hangup
-      @@calls.delete call
+      @@calls.delete call if call.hangup
     end
     
     # Returns an Array of Group

@@ -28,9 +28,12 @@ module SkypeMac
     end
   
     # Attempts to hang up a call. <b>Note</b>: If Skype hangs while placing the call, this method could hang indefinitely.
-    # <u>Use Skype#Call instead of this method unless you like memory leaks</u>
+    # <u>Use Skype#Call instead of this method unless you like memory leaks</u>.  
+    # Raises SkypeError if an error is reported from the Skype API
     def hangup
-      Skype.send_ :command => "set call #{@call_id} status finished"
+      s = Skype.send_ :command => "set call #{@call_id} status finished"
+      raise SkypeError("Error occurred on hangup: #{s.message}") if s =~ /ERROR/
+      s
     end
   
     # Retrieves the status of the current call.<br>

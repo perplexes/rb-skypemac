@@ -4,7 +4,7 @@ include SkypeMac
 class TestCall< Test::Unit::TestCase
 
   def test_new
-    assert Call.new 42
+    assert Call.new(42)
   end
   
   def test_active_call_ids
