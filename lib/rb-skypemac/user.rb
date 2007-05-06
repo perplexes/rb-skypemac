@@ -6,36 +6,38 @@ module SkypeMac
 
   # Represents Skype internal grouping of contacts; https://developer.skype.com/Docs/ApiDoc/GROUP_object
   class User
-    def User.skype_attr(attr_sym, accessor=false)
-      module_eval %{def #{attr_sym.to_s}
-        r = Skype.send_ :command => "get user \#{@handle} #{attr_sym.to_s}"
-        v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
-        v = true if v == "TRUE"
-        v = false if v == "FALSE"
-        v
-      end}
-      if accessor
-        module_eval %{def #{attr_sym.to_s}=(value)
-          value = "true" if value == true
-          value = "False" if value == false
-          r = Skype.send_ :command => "set user \#{@handle} #{attr_sym.to_s} \#{value}"
+    class << self
+      def skype_attr(attr_sym, accessor=false)
+        module_eval %{def #{attr_sym.to_s}
+          r = Skype.send_ :command => "get user \#{@handle} #{attr_sym.to_s}"
           v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
           v = true if v == "TRUE"
           v = false if v == "FALSE"
           v
         end}
+        if accessor
+          module_eval %{def #{attr_sym.to_s}=(value)
+            value = "true" if value == true
+            value = "False" if value == false
+            r = Skype.send_ :command => "set user \#{@handle} #{attr_sym.to_s} \#{value}"
+            v = r.sub(/^.*#{attr_sym.to_s.upcase} /, "")
+            v = true if v == "TRUE"
+            v = false if v == "FALSE"
+            v
+          end}
+        end
       end
-    end
 
-    def User.skype_attr_reader(*attr_sym)
-      attr_sym.each do |a|
-        User.skype_attr a, false
+      def skype_attr_reader(*attr_sym)
+        attr_sym.each do |a|
+          User.skype_attr a, false
+        end
       end
-    end
     
-    def User.skype_attr_accessor(*attr_sym)
-      attr_sym.each do |a|
-        User.skype_attr a, true
+      def skype_attr_accessor(*attr_sym)
+        attr_sym.each do |a|
+          User.skype_attr a, true
+        end
       end
     end
 

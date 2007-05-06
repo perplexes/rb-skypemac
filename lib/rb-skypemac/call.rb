@@ -11,14 +11,16 @@ module SkypeMac
     
     attr :call_id
   
-    def Call.active_call_ids
-      r = Skype.send_ :command => "SEARCH ACTIVECALLS"
-      r.gsub(/CALLS /, "").split(", ")      
-    end
+    class << self
+      def Call.active_call_ids
+        r = Skype.send_ :command => "SEARCH ACTIVECALLS"
+        r.gsub(/CALLS /, "").split(", ")      
+      end
 
-    def Call.active_calls
-      calls = Call.active_call_ids.collect { |id| Call.new id unless id == "COMMAND_PENDING"}
-      calls
+      def Call.active_calls
+        calls = Call.active_call_ids.collect { |id| Call.new id unless id == "COMMAND_PENDING"}
+        calls
+      end
     end
 
     # Creates a Call object from a call_id.
