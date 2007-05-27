@@ -33,9 +33,7 @@ module SkypeMac
     # <u>Use Skype#Call instead of this method unless you like memory leaks</u>.  
     # Raises SkypeError if an error is reported from the Skype API
     def hangup
-      s = Skype.send_ :command => "set call #{@call_id} status finished"
-      raise SkypeError("Error occurred on hangup: #{s.message}") if s =~ /ERROR/
-      s
+      Skype.send_ :command => "set call #{@call_id} status finished"
     end
   
     # Retrieves the status of the current call.<br>
