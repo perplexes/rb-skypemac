@@ -67,5 +67,9 @@ module SkypeMac
     def <=>(user)
       name.upcase <=> user.name.upcase
     end
+    
+    def ==(user)
+      name == user.name
+    end
   end
 end
